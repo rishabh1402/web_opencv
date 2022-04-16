@@ -1,14 +1,16 @@
+import cv2,io,base64
+from PIL import Image
 import threading
-import binascii
 from time import sleep
-from utils import base64_to_pil_image, pil_image_to_base64
+from imutils.video import WebcamVideoStream
+import numpy as np
 
 
 class Camera(object):
-    def __init__(self, process):
+    def __init__(self):
         self.to_process = []
-        self.to_output = []
-        self.process = process
+        self.output_image_rgb = []
+        self.output_image_bgr = []
 
         thread = threading.Thread(target=self.keep_processing, args=())
         thread.daemon = True
@@ -18,22 +20,26 @@ class Camera(object):
         if not self.to_process:
             return
 
-        # input is an ascii string. 
         input_str = self.to_process.pop(0)
+        imgdata = base64.b64decode(input_str)
+        input_img = np.array(Image.open(io.BytesIO(imgdata)))
+        """
+        After getting the image you can do any preprocessing here
+        """
+        #_______________________________________Performing some pre processing_______________________________________________
 
-        # convert it to a pil image
-        input_img = base64_to_pil_image(input_str)
+        bgr_image = cv2.flip(input_img, 1)  # Flip the image
+        rgb_image = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2RGB) # Changing color from bgr to rgb
 
-        ################## where the hard work is done ############
-        # output_img is an PIL image
-        output_img = self.process.process(input_img)
+        #______________________________________________________________________________________________________________________
 
-        # output_str is a base64 string in ascii
-        output_str = pil_image_to_base64(output_img)
+        ret,rgb_jpeg = cv2.imencode('.jpg',rgb_image)
+        _,bgr_jpeg = cv2.imencode('.jpg',bgr_image)
 
-        # convert eh base64 string in ascii to base64 string in _bytes_
-        self.to_output.append(binascii.a2b_base64(output_str))
-
+        self.output_image_rgb.append(rgb_jpeg.tobytes())
+        self.output_image_bgr.append(bgr_jpeg.tobytes())
+        
+        
     def keep_processing(self):
         while True:
             self.process_one()
@@ -43,6 +49,6 @@ class Camera(object):
         self.to_process.append(input)
 
     def get_frame(self):
-        while not self.to_output:
+        while not self.output_image_rgb:
             sleep(0.05)
-        return self.to_output.pop(0)
+        return self.output_image_rgb.pop(0) , self.output_image_bgr.pop(0)
