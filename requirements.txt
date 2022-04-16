@@ -8,3 +8,4 @@ python-socketio==4.6.1
 opencv-python-headless==4.2.0.32
 numpy==1.18.5
 eventlet==0.24.1
+jinja2==3.0.1
