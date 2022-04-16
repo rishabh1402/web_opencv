@@ -24,8 +24,9 @@
     </head>
     <body>
         <div id="container">
-            <video autoplay="true" id="videoElement">
-            </video>
+             <video autoplay="true" id="videoElement" hidden>
+             </video>
+             <canvas id="canvasElement" hidden></canvas>
             <img id="imageElement" src="{{ url_for('video_feed') }}">
         </div>
 
