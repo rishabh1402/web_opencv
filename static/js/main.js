@@ -1,8 +1,8 @@
 $(document).ready(function(){
   let namespace = "/test";
   let video = document.querySelector("#videoElement");
-  //let canvas = document.querySelector("#canvasElement");
- // let ctx = canvas.getContext('2d');
+  let canvas = document.querySelector("#canvasElement");
+  let ctx = canvas.getContext('2d');
 
   var localMediaStream = null;
 
@@ -13,10 +13,10 @@ $(document).ready(function(){
       return;
     }
 
-   // ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight, 0, 0, 300, 150);
+   ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight, 0, 0, 300, 150);
 
-   // let dataURL = canvas.toDataURL('image/jpeg');
-   // socket.emit('input image', dataURL);
+    let dataURL = canvas.toDataURL('image/jpeg');
+    socket.emit('input image', dataURL);
   }
 
   socket.on('connect', function() {
